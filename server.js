@@ -71,6 +71,14 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('hideUpdate', (roomId) => {
+    if (votesRevealedState[roomId] !== undefined) {
+      votesRevealedState[roomId] = false;
+      io.to(roomId).emit('updateVotesRevealed', votesRevealedState[roomId]);
+      io.to(roomId).emit('updateUsers', rooms[roomId]);
+    }
+  });
+
   socket.on('disconnect', () => {
     for (const roomId in rooms) {
       rooms[roomId] = rooms[roomId].filter(u => u.id !== socket.id);

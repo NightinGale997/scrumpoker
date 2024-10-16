@@ -2,6 +2,7 @@ const socket = io();
 
 let votesRevealed = false;
 let username;
+let selectedCard = null;
 
 window.addEventListener('load', () => {
   const roomIdInput = document.getElementById('roomId');
@@ -94,7 +95,7 @@ socket.on('updateUsers', (users) => {
       case 'PO':
         groupColor = 'text-gray-500';
         groupName = 'Другое';
-        groupDiv.classList.add('col-start-2')
+        groupDiv.classList.add('col-start-1', 'md:col-start-2')
         break;
     }
 
@@ -168,6 +169,12 @@ document.getElementById('revealVotesBtn').addEventListener('click', () => {
   socket.emit('requestUpdate', roomId);
 });
 
+document.getElementById('hideVotesBtn').addEventListener('click', () => {
+  votesRevealed = false;
+  const roomId = document.getElementById('roomTitle').innerText;
+  socket.emit('hideUpdate', roomId);
+});
+
 function highlightSelectedCard() {
   document.querySelectorAll('.card').forEach(card => {
     if (card.getAttribute('data-value') === selectedCard) {
@@ -197,9 +204,9 @@ function getColorClassByVote(vote) {
     case '5':
       return 'bg-pink-300';
     case '8':
-      return 'bg-red-300';
+      return 'bg-red-200';
     case '13':
-      return 'bg-red-400';
+      return 'bg-red-300';
     case '?':
       return 'bg-gray-100';
     case '☕':
@@ -207,6 +214,6 @@ function getColorClassByVote(vote) {
     case 0:
       return null;
     default:
-      return 'bg-red-500';
+      return 'bg-red-400';
   }
 }
