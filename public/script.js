@@ -172,8 +172,10 @@ function highlightSelectedCard() {
   document.querySelectorAll('.card').forEach(card => {
     if (card.getAttribute('data-value') === selectedCard) {
       card.classList.add('bg-blue-200');
+      card.classList.remove('bg-white');
     } else {
       card.classList.remove('bg-blue-200');
+      card.classList.add('bg-white');
     }
   });
 }
