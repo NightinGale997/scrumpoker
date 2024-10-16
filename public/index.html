@@ -6,11 +6,9 @@
   <link rel="stylesheet" href="styles.css"/>
 </head>
 <body class="bg-gray-100">
-  <!-- Экран входа -->
   <div id="loginScreen" class="flex items-center justify-center h-screen">
     <div class="bg-white p-8 rounded shadow-md w-96">
       <h2 class="text-2xl font-bold mb-6 text-center">Вход в комнату</h2>
-      <!-- Изменяем input для roomId -->
       <div id="roomIdContainer" class="mb-4">
         <input type="text" id="roomId" placeholder="ID комнаты" class="w-full p-2 border rounded">
       </div>
@@ -25,15 +23,12 @@
     </div>
   </div>
 
-  <!-- Экран комнаты -->
   <div id="roomScreen" class="hidden">
     <div class="p-4">
       <h2 class="text-2xl font-bold mb-4">Комната: <span id="roomTitle"></span></h2>
       <div id="users" class="grid grid-cols-1 md:grid-cols-3 gap-14 mb-6 content-center justify-center">
-        <!-- Пользователи будут добавляться динамически -->
       </div>
       <div id="cards" class="flex flex-wrap justify-center gap-4 mb-6">
-        <!-- Карточки для голосования -->
         <button class="card bg-white p-6 rounded shadow-md text-xl font-bold hover:bg-blue-100 transform hover:scale-105 transition" data-value="?">?</button>
         <button class="card bg-white p-6 rounded shadow-md text-xl font-bold hover:bg-blue-100 transform hover:scale-105 transition" data-value="☕">☕</button>
         <button class="card bg-white p-6 rounded shadow-md text-xl font-bold hover:bg-blue-100 transform hover:scale-105 transition" data-value="0.5">0.5</button>
@@ -56,5 +51,17 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="script.js"></script>
+
+  <script>
+    window.onload = function() {
+      document.getElementById('username').focus();
+    };
+
+    document.getElementById('username').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        document.getElementById('joinRoomBtn').click();
+      }
+    });
+  </script>
 </body>
 </html>

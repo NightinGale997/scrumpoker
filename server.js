@@ -66,8 +66,8 @@ io.on('connection', (socket) => {
   socket.on('requestUpdate', (roomId) => {
     if (votesRevealedState[roomId] !== undefined) {
       votesRevealedState[roomId] = true;
-      io.to(roomId).emit('updateUsers', rooms[roomId]);
       io.to(roomId).emit('updateVotesRevealed', votesRevealedState[roomId]);
+      io.to(roomId).emit('updateUsers', rooms[roomId]);
     }
   });
 
