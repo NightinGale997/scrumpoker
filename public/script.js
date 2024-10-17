@@ -203,7 +203,6 @@ socket.on('updateUsers', (users) => {
 document.querySelectorAll('.card').forEach(card => {
   card.addEventListener('click', () => {
     const vote = card.getAttribute('data-value');
-    const roomId = document.getElementById('roomTitle').innerText;
     socket.emit('sendVote', { roomId, vote });
     selectedCard = vote;
     highlightSelectedCard();
@@ -234,6 +233,9 @@ socket.on('reconnect', () => {
   console.log('Reconnected to server');
   if (username && roomId && group) {
     socket.emit('joinRoom', { roomId, username, group });
+    if (selectedCard !== null) {
+      socket.emit('sendVote', { roomId, vote: selectedCard });
+    }
   }
 });
 
@@ -243,6 +245,9 @@ socket.on('connect', () => {
   document.getElementById('status').classList.add('text-green-600');
   if (disconnected && username && roomId && group) {
     socket.emit('joinRoom', { roomId, username, group });
+    if (selectedCard !== null) {
+      socket.emit('sendVote', { roomId, vote: selectedCard });
+    }
   }
 });
 
