@@ -545,10 +545,6 @@ video {
   display: none;
 }
 
-.col-start-1 {
-  grid-column-start: 1;
-}
-
 .m-1 {
   margin: 0.25rem;
 }
@@ -605,8 +601,8 @@ video {
   width: 100%;
 }
 
-.max-w-3xl {
-  max-width: 48rem;
+.max-w-5xl {
+  max-width: 64rem;
 }
 
 .transform {

@@ -1,25 +1,32 @@
-const socket = io();
+const socket = io({
+  reconnectionAttempts: 10,
+  reconnectionDelay: 500,
+  reconnectionDelayMax: 5000,
+  timeout: 20000
+});
 
 let votesRevealed = false;
 let username;
 let selectedCard = null;
+let roomId;
+let group;
 
 window.addEventListener('load', () => {
   const roomIdInput = document.getElementById('roomId');
   const roomIdContainer = document.getElementById('roomIdContainer');
-  const roomId = getRoomIdFromURL();
+  const urlRoomId = getRoomIdFromURL();
 
-  if (roomId) {
-    roomIdInput.value = roomId;
+  if (urlRoomId) {
+    roomIdInput.value = urlRoomId;
     roomIdInput.disabled = true;
     roomIdContainer.style.display = 'none';
   }
 });
 
 document.getElementById('joinRoomBtn').addEventListener('click', () => {
-  let roomId = document.getElementById('roomId').value;
+  roomId = document.getElementById('roomId').value;
   username = document.getElementById('username').value;
-  const group = document.getElementById('group').value;
+  group = document.getElementById('group').value;
 
   if (!roomId) {
     roomId = generateRoomId();
@@ -76,7 +83,7 @@ socket.on('updateUsers', (users) => {
 
   for (const group in groups) {
     const groupDiv = document.createElement('div');
-    groupDiv.classList.add('p-4', 'bg-white', 'rounded', 'shadow-md');
+    groupDiv.classList.add('p-4', 'max-w-5xl', 'bg-white', 'rounded', 'shadow-md');
 
     let groupColor = '';
     switch (group) {
@@ -95,15 +102,14 @@ socket.on('updateUsers', (users) => {
       case 'PO':
         groupColor = 'text-gray-500';
         groupName = 'Другое';
-        groupDiv.classList.add('col-start-1', 'md:col-start-2')
         break;
     }
-
+    groupDiv.classList.add('md:col-start-2')
     groupDiv.innerHTML = `<h3 class="text-xl font-bold mb-2 ${groupColor}">${groupName}</h3>`;
     
     groups[group].forEach(user => {
       const userDiv = document.createElement('div');
-      userDiv.classList.add('flex', 'justify-between', 'max-w-3xl', 'items-center', 'mb-0','mt-0', 'py-1', 'px-3', 'rounded-b-none', 'border-b', 'border-gray-300', 'shadow-sm');
+      userDiv.classList.add('flex', 'justify-between', 'items-center', 'mb-0','mt-0', 'py-1', 'px-3', 'rounded-b-none', 'border-b', 'border-gray-300', 'shadow-sm');
 
       // Создаем контейнер для имени и оценки
       const userInfoDiv = document.createElement('div');
@@ -173,6 +179,21 @@ document.getElementById('hideVotesBtn').addEventListener('click', () => {
   votesRevealed = false;
   const roomId = document.getElementById('roomTitle').innerText;
   socket.emit('hideUpdate', roomId);
+});
+
+socket.on('reconnect', () => {
+  console.log('Reconnected to server');
+  if (username && roomId && group) {
+    socket.emit('joinRoom', { roomId, username, group });
+  }
+});
+
+socket.on('connect', () => {
+  console.log('Connected to server');
+});
+
+socket.on('disconnect', (reason) => {
+  console.log(`Disconnected from server: ${reason}`);
 });
 
 function highlightSelectedCard() {
