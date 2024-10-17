@@ -104,8 +104,8 @@ socket.on('updateUsers', (users) => {
         maingroupDiv.classList.add('md:justify-start', 'flex', 'justify-center');
         break;
       case 'PO':
-        groupColor = 'text-gray-500';
-        groupName = 'Другое';
+        groupColor = 'text-cyan-500';
+        groupName = 'PO';
         maingroupDiv.classList.add('md:justify-start', 'flex', 'justify-center');
         break;
     }
