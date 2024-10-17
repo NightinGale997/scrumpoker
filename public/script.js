@@ -11,6 +11,29 @@ let selectedCard = null;
 let roomId;
 let group;
 
+function setCookie(name, value, days) {
+  const d = new Date();
+  d.setTime(d.getTime() + (days*24*60*60*1000));
+  const expires = "expires=" + d.toUTCString();
+  document.cookie = `${name}=${encodeURIComponent(value)};${expires};path=/`;
+}
+
+function getCookie(name) {
+  const cname = name + "=";
+  const decodedCookie = decodeURIComponent(document.cookie);
+  const ca = decodedCookie.split(';');
+  for(let i = 0; i <ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(cname) === 0) {
+      return c.substring(cname.length, c.length);
+    }
+  }
+  return "";
+}
+
 window.addEventListener('load', () => {
   const roomIdInput = document.getElementById('roomId');
   const roomIdContainer = document.getElementById('roomIdContainer');
@@ -20,6 +43,19 @@ window.addEventListener('load', () => {
     roomIdInput.value = urlRoomId;
     roomIdInput.disabled = true;
     roomIdContainer.style.display = 'none';
+  }
+
+  const savedUsername = getCookie('username');
+  const savedGroup = getCookie('group');
+
+  if (savedUsername) {
+    document.getElementById('username').value = savedUsername;
+    username = savedUsername;
+  }
+
+  if (savedGroup) {
+    document.getElementById('group').value = savedGroup;
+    group = savedGroup;
   }
 });
 
@@ -35,6 +71,9 @@ document.getElementById('joinRoomBtn').addEventListener('click', () => {
   }
 
   if (username && group) {
+    setCookie('username', username, 30);
+    setCookie('group', group, 30);
+    
     socket.emit('joinRoom', { roomId, username, group });
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('roomScreen').classList.remove('hidden');
