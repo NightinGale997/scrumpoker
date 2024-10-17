@@ -1,8 +1,8 @@
 const socket = io({
-  reconnectionAttempts: 10,
-  reconnectionDelay: 500,
+  reconnectionAttempts: Infinity, // Keep trying indefinitely
+  reconnectionDelay: 1000,
   reconnectionDelayMax: 5000,
-  timeout: 20000
+  timeout: 20000,
 });
 
 let votesRevealed = false;
@@ -10,6 +10,7 @@ let username;
 let selectedCard = null;
 let roomId;
 let group;
+let disconnected = false;
 
 function setCookie(name, value, days) {
   const d = new Date();
@@ -73,11 +74,11 @@ document.getElementById('joinRoomBtn').addEventListener('click', () => {
   if (username && group) {
     setCookie('username', username, 30);
     setCookie('group', group, 30);
-    
+
     socket.emit('joinRoom', { roomId, username, group });
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('roomScreen').classList.remove('hidden');
-    document.getElementById('roomTitle').innerText = roomId;
+    document.getElementById('roomTitle').innerText = decodeURIComponent(roomId);
   }
 });
 
@@ -150,6 +151,8 @@ socket.on('updateUsers', (users) => {
     }
     groupDiv.innerHTML = `<h3 class="text-xl font-bold mb-2 ${groupColor}">${groupName}</h3>`;
     
+    let avg = 0;
+    let countForAvg = 0;
     groups[group].forEach(user => {
       const userDiv = document.createElement('div');
       userDiv.classList.add('flex', 'justify-between', 'items-center', 'mb-0','mt-0', 'py-1', 'px-3', 'rounded-b-none', 'border-b', 'border-gray-300', 'shadow-sm');
@@ -168,6 +171,10 @@ socket.on('updateUsers', (users) => {
 
       if (user.vote !== null && user.vote !== 0) {
         userVoteSpan.innerText = votesRevealed ? user.vote : '★';
+        if (votesRevealed && !isNaN(user.vote)) {
+          avg += user.vote;
+          countForAvg += 1;
+        }
       } else {
         userVoteSpan.innerText = '—';
       }
@@ -232,10 +239,18 @@ socket.on('reconnect', () => {
 
 socket.on('connect', () => {
   console.log('Connected to server');
+  document.getElementById('status').innerText = 'ПОДКЛЮЧЁН';
+  document.getElementById('status').classList.add('text-green-600');
+  if (disconnected && username && roomId && group) {
+    socket.emit('joinRoom', { roomId, username, group });
+  }
 });
 
 socket.on('disconnect', (reason) => {
   console.log(`Disconnected from server: ${reason}`);
+  document.getElementById('status').innerText = 'НЕ ПОДКЛЮЧЁН: ' + reason;
+  document.getElementById('status').classList.add('text-red-600');
+  disconnected = true;
 });
 
 function highlightSelectedCard() {
