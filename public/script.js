@@ -233,7 +233,7 @@ socket.on('reconnect', () => {
   console.log('Reconnected to server');
   if (username && roomId && group) {
     socket.emit('joinRoom', { roomId, username, group });
-    if (selectedCard !== null) {
+    if (selectedCard !== null && selectedCard !== 0) {
       socket.emit('sendVote', { roomId, vote: selectedCard });
     }
   }
@@ -245,7 +245,7 @@ socket.on('connect', () => {
   document.getElementById('status').classList.add('text-green-600');
   if (disconnected && username && roomId && group) {
     socket.emit('joinRoom', { roomId, username, group });
-    if (selectedCard !== null) {
+    if (selectedCard !== null && selectedCard !== 0) {
       socket.emit('sendVote', { roomId, vote: selectedCard });
     }
   }
