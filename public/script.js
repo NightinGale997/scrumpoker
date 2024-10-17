@@ -17,7 +17,7 @@ window.addEventListener('load', () => {
 });
 
 document.getElementById('joinRoomBtn').addEventListener('click', () => {
-  const roomId = document.getElementById('roomId').value;
+  let roomId = document.getElementById('roomId').value;
   username = document.getElementById('username').value;
   const group = document.getElementById('group').value;
 
