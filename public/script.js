@@ -62,8 +62,8 @@ socket.on('updateUsers', (users) => {
 
   const groups = {
     Development: [],
-    Analysis: [],
     Testing: [],
+    Analysis: [],
     PO: []
   };
 
@@ -82,36 +82,39 @@ socket.on('updateUsers', (users) => {
   }
 
   for (const group in groups) {
+    const maingroupDiv = document.createElement('div');
     const groupDiv = document.createElement('div');
-    groupDiv.classList.add('p-4', 'max-w-5xl', 'bg-white', 'rounded', 'shadow-md');
-
+    groupDiv.classList.add('p-4', 'max-w-xl', 'w-full', 'bg-white', 'rounded', 'shadow-md');
+    maingroupDiv.appendChild(groupDiv)
     let groupColor = '';
     switch (group) {
       case 'Development':
         groupColor = 'text-blue-500';
         groupName = 'Разработка';
+        maingroupDiv.classList.add('md:justify-end', 'flex', 'justify-center');
         break;
       case 'Analysis':
         groupColor = 'text-green-500';
         groupName = 'Анализ';
+        maingroupDiv.classList.add('md:justify-end', 'flex', 'justify-center');
         break;
       case 'Testing':
         groupColor = 'text-red-500';
         groupName = 'Тестирование';
+        maingroupDiv.classList.add('md:justify-start', 'flex', 'justify-center');
         break;
       case 'PO':
         groupColor = 'text-gray-500';
         groupName = 'Другое';
+        maingroupDiv.classList.add('md:justify-start', 'flex', 'justify-center');
         break;
     }
-    groupDiv.classList.add('md:col-start-2')
     groupDiv.innerHTML = `<h3 class="text-xl font-bold mb-2 ${groupColor}">${groupName}</h3>`;
     
     groups[group].forEach(user => {
       const userDiv = document.createElement('div');
       userDiv.classList.add('flex', 'justify-between', 'items-center', 'mb-0','mt-0', 'py-1', 'px-3', 'rounded-b-none', 'border-b', 'border-gray-300', 'shadow-sm');
 
-      // Создаем контейнер для имени и оценки
       const userInfoDiv = document.createElement('div');
       userInfoDiv.classList.add('flex', 'items-center');
 
@@ -145,7 +148,7 @@ socket.on('updateUsers', (users) => {
       groupDiv.appendChild(userDiv);
     });
 
-    usersDiv.appendChild(groupDiv);
+    usersDiv.appendChild(maingroupDiv);
   }
   selectedCard = users.every((user) => user.vote === 0) ? null : selectedCard;
   updateSelectedCard();
