@@ -1,8 +1,8 @@
 const socket = io({
   reconnectionAttempts: Infinity, // Keep trying indefinitely
-  reconnectionDelay: 1000,
-  reconnectionDelayMax: 5000,
-  timeout: 20000,
+  reconnectionDelay: 100,
+  reconnectionDelayMax: 400,
+  timeout: 5000,
 });
 
 let votesRevealed = false;
@@ -243,6 +243,7 @@ socket.on('connect', () => {
   console.log('Connected to server');
   document.getElementById('status').innerText = 'ПОДКЛЮЧЁН';
   document.getElementById('status').classList.add('text-green-600');
+  document.getElementById('status').classList.remove('text-red-600');
   if (disconnected && username && roomId && group) {
     socket.emit('joinRoom', { roomId, username, group });
     if (selectedCard !== null && selectedCard !== 0) {
@@ -255,6 +256,7 @@ socket.on('disconnect', (reason) => {
   console.log(`Disconnected from server: ${reason}`);
   document.getElementById('status').innerText = 'НЕ ПОДКЛЮЧЁН: ' + reason;
   document.getElementById('status').classList.add('text-red-600');
+  document.getElementById('status').classList.remove('text-green-600');
   disconnected = true;
 });
 
