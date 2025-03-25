@@ -1,69 +1,225 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="">
 <head>
   <meta charset="UTF-8">
   <title>Scrum Poker</title>
-  <link rel="stylesheet" href="styles.css"/>
+  <!-- Подключаем Tailwind (например, через ваш скомпилированный styles.css) -->
+  <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300">
+  <!-- Кнопка переключения темы. Можно разместить где удобно, здесь - справа в верхнем углу -->
+  <div class="absolute top-4 right-4">
+    <button id="themeToggleBtn" 
+      class="bg-gray-200 dark:bg-gray-700 px-4 py-2 rounded shadow dark:shadow-none
+             hover:bg-gray-300 dark:hover:bg-gray-600
+             focus:outline-none focus:ring-2 focus:ring-blue-500 
+             transition-colors duration-300">
+      Сменить тему
+    </button>
+  </div>
+
+  <!-- Экран Логина -->
   <div id="loginScreen" class="flex items-center justify-center h-screen">
-    <div class="bg-white p-8 rounded shadow-md w-96">
+    <div class="bg-gray-200 dark:bg-gray-800 p-8 rounded shadow-md dark:shadow-none w-96 transition-colors duration-300">
       <h2 class="text-2xl font-bold mb-6 text-center">Вход в комнату</h2>
       <div id="roomIdContainer" class="mb-4">
-        <input type="text" id="roomId" placeholder="ID комнаты" class="w-full p-2 border rounded">
+        <input 
+          type="text" 
+          id="roomId" 
+          placeholder="ID комнаты" 
+          class="w-full p-2 border rounded dark:text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 border-gray-200"
+        >
       </div>
-      <input type="text" id="username" placeholder="Ваше имя" class="w-full p-2 mb-4 border rounded">
-      <select id="group" class="w-full p-2 mb-6 border rounded">
+      <input 
+        type="text" 
+        id="username" 
+        placeholder="Ваше имя" 
+        class="w-full p-2 mb-4 border rounded dark:text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 border-gray-200"
+      >
+      <select 
+        id="group" 
+        class="w-full p-2 mb-6 border rounded dark:text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 border-gray-200"
+      >
         <option value="Development">Разработка</option>
         <option value="Analysis">Анализ</option>
         <option value="Testing">Тестирование</option>
-        <option value="PO">ПО</option>
+        <option value="PO">Алексей (PO)</option>
       </select>
-      <button id="joinRoomBtn" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Войти</button>
+      <button 
+        id="joinRoomBtn" 
+        class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 
+               transition-colors duration-300"
+      >
+        Войти
+      </button>
     </div>
   </div>
 
+  <!-- Экран Комнаты -->
   <div id="roomScreen" class="hidden">
     <div class="p-4">
-      <h2 class="text-2xl font-bold mb-4 text-center text-cyan-800">Комната: <span id="roomTitle"></span></h2>
-      <h2 class="text-2xl font-bold mb-4 text-center text-cyan-800">Ваш статус: <span id="status"></span></h2>
-      <div id="users" class=" place-items-center grid grid-cols-1 md:grid-cols-2 gap-3 md:mx-auto mb-6 items-stretch justify-items-stretch">
+      <h2 class="text-2xl font-bold mb-4 text-center text-cyan-800 dark:text-cyan-300">
+        Комната: <span id="roomTitle"></span>
+      </h2>
+      <h2 class="text-2xl font-bold mb-4 text-center text-cyan-800 dark:text-cyan-300">
+        Ваш статус: <span id="status"></span>
+      </h2>
+      <div 
+        id="users" 
+        class="place-items-center grid grid-cols-1 md:grid-cols-2 gap-3 md:mx-auto mb-6 
+               items-stretch justify-items-stretch"
+      >
       </div>
+
+      <!-- Карточки -->
       <div id="cards" class="flex flex-wrap justify-center gap-4 mb-6">
-        <button class="card bg-white p-6 rounded shadow-md text-xl font-bold hover:bg-blue-100 transform hover:scale-105 transition" data-value="?">?</button>
-        <button class="card bg-white p-6 rounded shadow-md text-xl font-bold hover:bg-blue-100 transform hover:scale-105 transition" data-value="☕">☕</button>
-        <button class="card bg-white p-6 rounded shadow-md text-xl font-bold hover:bg-blue-100 transform hover:scale-105 transition" data-value="0.5">0.5</button>
-        <button class="card bg-white p-6 rounded shadow-md text-xl font-bold hover:bg-blue-100 transform hover:scale-105 transition" data-value="1">1</button>
-        <button class="card bg-white p-6 rounded shadow-md text-xl font-bold hover:bg-blue-100 transform hover:scale-105 transition" data-value="2">2</button>
-        <button class="card bg-white p-6 rounded shadow-md text-xl font-bold hover:bg-blue-100 transform hover:scale-105 transition" data-value="3">3</button>
-        <button class="card bg-white p-6 rounded shadow-md text-xl font-bold hover:bg-blue-100 transform hover:scale-105 transition" data-value="5">5</button>
-        <button class="card bg-white p-6 rounded shadow-md text-xl font-bold hover:bg-blue-100 transform hover:scale-105 transition" data-value="8">8</button>
-        <button class="card bg-white p-6 rounded shadow-md text-xl font-bold hover:bg-blue-100 transform hover:scale-105 transition" data-value="13">13</button>
-        <button class="card bg-white p-6 rounded shadow-md text-xl font-bold hover:bg-blue-100 transform hover:scale-105 transition" data-value="20">20</button>
-        <button class="card bg-white p-6 rounded shadow-md text-xl font-bold hover:bg-blue-100 transform hover:scale-105 transition" data-value="40">40</button>
-        <button class="card bg-white p-6 rounded shadow-md text-xl font-bold hover:bg-blue-100 transform hover:scale-105 transition" data-value="100">100</button>
+        <!-- Каждая карточка имеет темный стиль через dark:... -->
+        <button 
+          class="card bg-white dark:bg-gray-800 p-6 rounded shadow-md dark:shadow-none
+                 text-xl font-bold hover:bg-blue-100 hover:dark:bg-gray-700 
+                 transform hover:scale-105 transition 
+                 dark:text-gray-100"
+          data-value="?"
+        >?</button>
+
+        <button 
+          class="card bg-white dark:bg-gray-800 p-6 rounded shadow-md dark:shadow-none
+                 text-xl font-bold hover:bg-blue-100 hover:dark:bg-gray-700 
+                 transform hover:scale-105 transition 
+                 dark:text-gray-100"
+          data-value="☕"
+        >☕</button>
+
+        <button 
+          class="card bg-white dark:bg-gray-800 p-6 rounded shadow-md dark:shadow-none
+                 text-xl font-bold hover:bg-blue-100 hover:dark:bg-gray-700 
+                 transform hover:scale-105 transition 
+                 dark:text-gray-100"
+          data-value="0.5"
+        >0.5</button>
+
+        <button 
+          class="card bg-white dark:bg-gray-800 p-6 rounded shadow-md dark:shadow-none
+                 text-xl font-bold hover:bg-blue-100 hover:dark:bg-gray-700 
+                 transform hover:scale-105 transition 
+                 dark:text-gray-100"
+          data-value="1"
+        >1</button>
+
+        <button 
+          class="card bg-white dark:bg-gray-800 p-6 rounded shadow-md dark:shadow-none
+                 text-xl font-bold hover:bg-blue-100 hover:dark:bg-gray-700 
+                 transform hover:scale-105 transition 
+                 dark:text-gray-100"
+          data-value="2"
+        >2</button>
+
+        <button 
+          class="card bg-white dark:bg-gray-800 p-6 rounded shadow-md dark:shadow-none
+                 text-xl font-bold hover:bg-blue-100 hover:dark:bg-gray-700 
+                 transform hover:scale-105 transition 
+                 dark:text-gray-100"
+          data-value="3"
+        >3</button>
+
+        <button 
+          class="card bg-white dark:bg-gray-800 p-6 rounded shadow-md dark:shadow-none
+                 text-xl font-bold hover:bg-blue-100 hover:dark:bg-gray-700 
+                 transform hover:scale-105 transition 
+                 dark:text-gray-100"
+          data-value="5"
+        >5</button>
+
+        <button 
+          class="card bg-white dark:bg-gray-800 p-6 rounded shadow-md dark:shadow-none
+                 text-xl font-bold hover:bg-blue-100 hover:dark:bg-gray-700 
+                 transform hover:scale-105 transition 
+                 dark:text-gray-100"
+          data-value="8"
+        >8</button>
+
+        <button 
+          class="card bg-white dark:bg-gray-800 p-6 rounded shadow-md dark:shadow-none
+                 text-xl font-bold hover:bg-blue-100 hover:dark:bg-gray-700 
+                 transform hover:scale-105 transition 
+                 dark:text-gray-100"
+          data-value="13"
+        >13</button>
+
+        <button 
+          class="card bg-white dark:bg-gray-800 p-6 rounded shadow-md dark:shadow-none
+                 text-xl font-bold hover:bg-blue-100 hover:dark:bg-gray-700 
+                 transform hover:scale-105 transition 
+                 dark:text-gray-100"
+          data-value="20"
+        >20</button>
+
+        <button 
+          class="card bg-white dark:bg-gray-800 p-6 rounded shadow-md dark:shadow-none
+                 text-xl font-bold hover:bg-blue-100 hover:dark:bg-gray-700 
+                 transform hover:scale-105 transition 
+                 dark:text-gray-100"
+          data-value="40"
+        >40</button>
+
+        <button 
+          class="card bg-white dark:bg-gray-800 p-6 rounded shadow-md dark:shadow-none
+                 text-xl font-bold hover:bg-blue-100 hover:dark:bg-gray-700 
+                 transform hover:scale-105 transition 
+                 dark:text-gray-100"
+          data-value="100"
+        >100</button>
       </div>
+
+      <!-- Кнопки под карточками -->
       <div class="flex justify-center gap-4">
-        <button id="revealVotesBtn" class="bg-green-500 text-white p-2 rounded hover:bg-green-600">Открыть оценки</button>
-        <button id="hideVotesBtn" class="bg-gray-500 text-white p-2 rounded hover:bg-gray-600">Спрятать оценки</button>
-        <button id="resetVotesBtn" class="bg-red-500 text-white p-2 rounded hover:bg-red-600">Сбросить голоса</button>
+        <button 
+          id="revealVotesBtn" 
+          class="bg-green-500 text-white p-2 rounded hover:bg-green-600 
+                 transition-colors duration-300"
+        >
+          Открыть оценки
+        </button>
+        <button 
+          id="hideVotesBtn" 
+          class="bg-gray-500 text-white p-2 rounded hover:bg-gray-600 
+                 transition-colors duration-300"
+        >
+          Спрятать оценки
+        </button>
+        <button 
+          id="resetVotesBtn" 
+          class="bg-red-500 text-white p-2 rounded hover:bg-red-600 
+                 transition-colors duration-300"
+        >
+          Сбросить голоса
+        </button>
       </div>
     </div>
   </div>
 
+  <!-- Socket.io и ваш script.js -->
   <script src="/socket.io/socket.io.js"></script>
   <script src="script.js"></script>
 
   <script>
     window.onload = function() {
       document.getElementById('username').focus();
-    };
 
-    document.getElementById('username').addEventListener('keydown', function(event) {
-      if (event.key === 'Enter') {
-        document.getElementById('joinRoomBtn').click();
+      // Проверяем localStorage, чтобы восстановить тему при загрузке
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'light') {
+        document.documentElement.classList.add('light');
+      } else {
+        document.documentElement.classList.add('dark');
       }
-    });
+
+      document.getElementById('username').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+          document.getElementById('joinRoomBtn').click();
+        }
+      });
+    };
   </script>
 </body>
 </html>
