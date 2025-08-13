@@ -19,6 +19,24 @@ function setCookie(name, value, days) {
   document.cookie = `${name}=${encodeURIComponent(value)};${expires};path=/`;
 }
 
+function changeVotesVisibility(show)
+{
+  votesRevealed = show;
+  
+  showVotesClasses = ['bg-green-500', 'hover:bg-green-600'];
+  hideVotesClasses = ['bg-gray-500', 'hover:bg-gray-600'];
+  if (votesRevealed) {
+    document.getElementById('changeVisibility').innerText = 'Спрятать оценки';
+    document.getElementById('changeVisibility').classList.add(...hideVotesClasses);
+    document.getElementById('changeVisibility').classList.remove(...showVotesClasses);
+  }
+  else {
+    document.getElementById('changeVisibility').innerText = 'Открыть оценки';
+    document.getElementById('changeVisibility').classList.add(...showVotesClasses);
+    document.getElementById('changeVisibility').classList.remove(...hideVotesClasses);
+  }
+}
+
 function getCookie(name) {
   const cname = name + "=";
   const decodedCookie = decodeURIComponent(document.cookie);
@@ -110,7 +128,7 @@ function getRoomIdFromURL() {
 }
 
 socket.on('updateVotesRevealed', (state) => {
-  votesRevealed = state;
+  changeVotesVisibility(state);
 });
 
 socket.on('updateUsers', (users) => {
@@ -233,21 +251,21 @@ document.querySelectorAll('.card').forEach(card => {
 document.getElementById('resetVotesBtn').addEventListener('click', () => {
   const roomId = document.getElementById('roomTitle').innerText;
   socket.emit('resetVotes', roomId);
-  votesRevealed = false;
+  changeVotesVisibility(false);
   selectedCard = null;
   highlightSelectedCard();
 });
 
-document.getElementById('revealVotesBtn').addEventListener('click', () => {
-  votesRevealed = true;
+document.getElementById('changeVisibility').addEventListener('click', () => {
+  changeVotesVisibility(!votesRevealed)
   const roomId = document.getElementById('roomTitle').innerText;
-  socket.emit('requestUpdate', roomId);
-});
-
-document.getElementById('hideVotesBtn').addEventListener('click', () => {
-  votesRevealed = false;
-  const roomId = document.getElementById('roomTitle').innerText;
-  socket.emit('hideUpdate', roomId);
+  
+  if (votesRevealed) {
+    socket.emit('requestUpdate', roomId);
+  }
+  else {
+    socket.emit('hideUpdate', roomId);
+  }
 });
 
 socket.on('reconnect', () => {
