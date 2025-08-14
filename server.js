@@ -12,6 +12,7 @@ const io = require("socket.io")(server, {
 const multer = require("multer");
 const path = require("path");
 const sharp = require("sharp");
+const cors = require('cors');
 
 app.use((req, res, next) => {
   res.append("Access-Control-Allow-Origin", ["*"]);
@@ -20,27 +21,12 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(cors())
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // Хранение данных о комнатах и пользователях
-let rooms = {
-  "a362e5ad-97df-4037-b883-8f7356820877": {
-    id: "a362e5ad-97df-4037-b883-8f7356820877",
-    users: [],
-    estimatesRevealed: false,
-    lockEstimates: false,
-    settings: {
-      name: "Команда Платежи",
-      description: "PI планирование)",
-      groupByTag: false,
-      lockEstimatesWhenShowed: false,
-      kickTimeout: "00:01:00",
-    },
-    tags: [
-      { name: "Анализ", color: "#6AE6B5", order: 0 },
-      { name: "Тестирование", color: "#9A6AE6", order: 0 },
-      { name: "Разработка", color: "#E6AE6A", order: 0 },
-    ],
-  },
-};
+let rooms = {};
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -82,14 +68,32 @@ app.post("/uploadAvatar", upload.any(), async (req, res) => {
 // Настройка статической папки
 app.use(express.static(path.join(__dirname, "public")));
 
-// // Обработка GET-запроса для динамических маршрутов
-// app.get(":roomId?", (req, res) => {
-//   res.sendFile(path.join(__dirname, "public", "index.html"));
-// });
-
 // Обработка GET-запроса для динамических маршрутов
 app.get("/avatars/:filename", (req, res) => {
   res.sendFile(path.join(__dirname, "user_avatars", req.params["filename"]));
+});
+
+app.post("/api/rooms", (req, res) => {
+  console.log('new room!');
+  console.log(req.body);
+  const roomId = crypto.randomUUID();
+  rooms[roomId] = {
+    id: roomId,
+    users: [],
+    estimatesRevealed: false,
+    lockEstimates: false,
+    settings: {
+      name: req.body.name,
+      description: req.body.description,
+      groupByTag: false,
+      lockEstimatesWhenShowed: false,
+      kickTimeout: "00:01:00"
+    },
+    tags: req.body.tags
+  };
+  res.json({
+    roomId: roomId
+  });
 });
 
 app.get("/api/rooms/:roomId", (req, res) => {
