@@ -3,16 +3,17 @@ const app = express();
 const http = require("http");
 const server = http.createServer(app);
 const fs = require("fs");
-const io = require("socket.io")(server, {
-  cors: {
-    origin: "http://localhost:4200",
-    methods: ["GET", "POST"],
-  },
-});
+const io = require("socket.io")(server);
+// const io = require("socket.io")(server, {
+//   cors: {
+//     origin: "http://localhost:4200",
+//     methods: ["GET", "POST"],
+//   },
+// });
 const multer = require("multer");
 const path = require("path");
 const sharp = require("sharp");
-const cors = require('cors');
+//const cors = require("cors");
 
 app.use((req, res, next) => {
   res.append("Access-Control-Allow-Origin", ["*"]);
@@ -21,7 +22,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(cors())
+//app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -44,17 +45,17 @@ app.post("/uploadAvatar", upload.any(), async (req, res) => {
     return res.status(400).send("No image uploaded.");
   }
   const inputPath = req.files[0].path;
-  const filename = crypto.randomUUID() + '.jpeg';
+  const filename = crypto.randomUUID() + ".jpeg";
   const outputPath = "user_avatars/" + filename;
 
   try {
-    console.log('start resize');
+    console.log("start resize");
     await sharp(inputPath)
-      .resize(100, 100, { fit: "cover",  })
-      .toFormat('jpeg', { quality: 75 })
+      .resize(100, 100, { fit: "cover" })
+      .toFormat("jpeg", { quality: 75 })
       .toFile(outputPath);
 
-    console.log('finish resize');
+    console.log("finish resize");
     fs.unlinkSync(inputPath);
     res.json({
       image: filename,
@@ -64,17 +65,13 @@ app.post("/uploadAvatar", upload.any(), async (req, res) => {
     res.status(500).send("Error processing image.");
   }
 });
-
-// Настройка статической папки
-app.use(express.static(path.join(__dirname, "public")));
-
 // Обработка GET-запроса для динамических маршрутов
 app.get("/avatars/:filename", (req, res) => {
   res.sendFile(path.join(__dirname, "user_avatars", req.params["filename"]));
 });
 
 app.post("/api/rooms", (req, res) => {
-  console.log('new room!');
+  console.log("new room!");
   console.log(req.body);
   const roomId = crypto.randomUUID();
   rooms[roomId] = {
@@ -87,12 +84,12 @@ app.post("/api/rooms", (req, res) => {
       description: req.body.description,
       groupByTag: false,
       lockEstimatesWhenShowed: false,
-      kickTimeout: "00:01:00"
+      kickTimeout: "00:01:00",
     },
-    tags: req.body.tags
+    tags: req.body.tags,
   };
   res.json({
-    roomId: roomId
+    roomId: roomId,
   });
 });
 
@@ -112,7 +109,7 @@ app.get("/api/rooms/:roomId", (req, res) => {
         avatar: u.avatar,
         tag: u.tag,
         estimateSelected: u.estimateSelected,
-        estimate: rooms[roomId].estimatesRevealed ? u.estimate : undefined
+        estimate: rooms[roomId].estimatesRevealed ? u.estimate : undefined,
       };
     }),
   });
@@ -131,7 +128,7 @@ const updateEstimates = (roomId) => {
         estimateSelected: u.estimateSelected,
         estimate: u.estimate,
         tag: u.tag,
-        avatar: u.avatar
+        avatar: u.avatar,
       };
     });
   } else {
@@ -141,7 +138,7 @@ const updateEstimates = (roomId) => {
         estimateSelected: u.estimateSelected,
         tag: u.tag,
         avatar: u.avatar,
-        name: u.name
+        name: u.name,
       };
     });
   }
@@ -156,7 +153,7 @@ const updateEstimates = (roomId) => {
 io.on("connection", (socket) => {
   console.log("Новое соединение:", socket.id);
 
-  socket.on("updateUser", ({roomId, data}) => {
+  socket.on("updateUser", ({ roomId, data }) => {
     if (!rooms[roomId]) {
       return;
     }
@@ -172,7 +169,7 @@ io.on("connection", (socket) => {
     io.to(roomId).emit("editUser", { id: user.id, ...data });
   });
 
-  socket.on("updateRoomSettings", ({roomId, settings}) => {
+  socket.on("updateRoomSettings", ({ roomId, settings }) => {
     if (!rooms[roomId]) {
       return;
     }
@@ -239,10 +236,26 @@ io.on("connection", (socket) => {
   socket.on("joinRoom", ({ roomId, data }) => {
     const { name, tag, estimate, id, avatar, estimateSelected } = data;
 
-    if (rooms[roomId] && rooms[roomId].users.some(u => u.id === socket.data.userId)) {
+    if (
+      rooms[roomId] &&
+      rooms[roomId].users.some((u) => u.id === socket.data.userId)
+    ) {
       return;
     }
+    console.log(socket.rooms);
+
+    const otherRooms = [...socket.rooms].filter(
+      (r) => r !== roomId && r !== socket.id
+    );
+    if (otherRooms.length > 0) {
+      otherRooms.forEach((r) => {
+        socket.leave(r);
+        rooms[r].users = rooms[r].users.filter(u => u.id !== socket.data.userId);
+        io.to(r).emit("removeUser", socket.data.userId);
+      });
+    }
     socket.join(roomId);
+    console.log(socket.rooms);
 
     // Инициализация комнаты, если она ещё не существует
     if (!rooms[roomId]) {
@@ -261,7 +274,7 @@ io.on("connection", (socket) => {
       estimate: estimate,
       avatar: avatar,
       estimateSelected: estimateSelected,
-      tag: tag
+      tag: tag,
     });
 
     io.to(roomId).emit("addUser", { ...data });
@@ -277,12 +290,13 @@ io.on("connection", (socket) => {
       return;
     }
     console.log(estimate);
+    
     user.estimate = estimate;
     user.estimateSelected = estimate ? true : false;
     updateEstimates(roomId);
   });
 
-  socket.on("changeEstimatesVisibility", ({roomId, estimatesRevealed}) => {
+  socket.on("changeEstimatesVisibility", ({ roomId, estimatesRevealed }) => {
     if (!rooms[roomId]) {
       return;
     }
@@ -290,7 +304,7 @@ io.on("connection", (socket) => {
     if (rooms[roomId].settings.lockEstimatesWhenShowed) {
       rooms[roomId].lockEstimates = estimatesRevealed;
     }
-    console.log('смена видимости оценок на ' + estimatesRevealed);
+    console.log("смена видимости оценок на " + estimatesRevealed);
     rooms[roomId].estimatesRevealed = estimatesRevealed;
     updateEstimates(roomId);
   });
@@ -324,6 +338,13 @@ io.on("connection", (socket) => {
       }
     }
   });
+});
+
+// Настройка статической папки
+app.use(express.static(path.join(__dirname, "public/scrum-royal/browser")));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/scrum-royal/browser/index.html'));
 });
 
 server.listen(3000, () => {
