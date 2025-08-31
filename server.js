@@ -234,12 +234,15 @@ io.on("connection", (socket) => {
   });
 
   socket.on("joinRoom", ({ roomId, data }) => {
+    console.log('новый вход: ');
+    console.log(data);
     const { name, tag, estimate, id, avatar, estimateSelected } = data;
 
     if (
       rooms[roomId] &&
       rooms[roomId].users.some((u) => u.id === socket.data.userId)
     ) {
+      console.log('user найден в комнате');
       return;
     }
     console.log(socket.rooms);
@@ -346,6 +349,12 @@ app.use(express.static(path.join(__dirname, "public/scrum-royal/browser")));
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/scrum-royal/browser/index.html'));
 });
+
+// app.use(express.static(path.join(__dirname, "../scrumroyal/scrum-royal/dist/scrum-royal/browser")));
+
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname, '../scrumroyal/scrum-royal/dist/scrum-royal/browser/index.html'));
+// });
 
 server.listen(3000, () => {
   console.log("Сервер запущен на порту 3000");
